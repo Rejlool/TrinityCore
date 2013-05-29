@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -83,12 +83,10 @@ public:
 /*######
 ## mob_freed_soul
 ######*/
-
-//Possibly more of these quotes around.
-#define SAY_ZAPPED0 -1329000
-#define SAY_ZAPPED1 -1329001
-#define SAY_ZAPPED2 -1329002
-#define SAY_ZAPPED3 -1329003
+enum FreedSoul
+{
+    SAY_ZAPPED = 0
+};
 
 class mob_freed_soul : public CreatureScript
 {
@@ -106,7 +104,7 @@ public:
 
         void Reset()
         {
-            DoScriptText(RAND(SAY_ZAPPED0, SAY_ZAPPED1, SAY_ZAPPED2, SAY_ZAPPED3), me);
+            Talk(SAY_ZAPPED);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -153,14 +151,15 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (!Tagged && spell->Id == SPELL_EGAN_BLASTER && CAST_PLR(caster)->GetQuestStatus(QUEST_RESTLESS_SOUL) == QUEST_STATUS_INCOMPLETE)
-                {
-                    Tagged = true;
-                    Tagger = caster->GetGUID();
-                }
-            }
+            if (Tagged || spell->Id != SPELL_EGAN_BLASTER)
+                return;
+
+            Player* player = caster->ToPlayer();
+            if (!player || player->GetQuestStatus(QUEST_RESTLESS_SOUL) != QUEST_STATUS_INCOMPLETE)
+                return;
+
+            Tagged = true;
+            Tagger = caster->GetGUID();
         }
 
         void JustSummoned(Creature* summoned)
@@ -174,7 +173,7 @@ public:
                 me->SummonCreature(ENTRY_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Tagged)
             {
@@ -182,10 +181,13 @@ public:
                 {
                     if (Unit* temp = Unit::GetUnit(*me, Tagger))
                     {
-                        CAST_PLR(temp)->KilledMonsterCredit(ENTRY_RESTLESS, me->GetGUID());
+                        if (Player* player = temp->ToPlayer())
+                            player->KilledMonsterCredit(ENTRY_RESTLESS, me->GetGUID());
                         me->Kill(me);
                     }
-                } else Die_Timer -= diff;
+                }
+                else
+                    Die_Timer -= diff;
             }
         }
     };
@@ -246,7 +248,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Tagged)
             {

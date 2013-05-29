@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,19 +61,12 @@ enum Mobs
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1601011,
-    SAY_SLAY_1                                    = -1601012,
-    SAY_SLAY_2                                    = -1601013,
-    SAY_DEATH                                     = -1601014,
-    //Not in db
-    SAY_SEND_GROUP_1                              = -1601020,
-    SAY_SEND_GROUP_2                              = -1601021,
-    SAY_SEND_GROUP_3                              = -1601022,
-    SAY_SWARM_1                                   = -1601015,
-    SAY_SWARM_2                                   = -1601016,
-    SAY_PREFIGHT_1                                = -1601017,
-    SAY_PREFIGHT_2                                = -1601018,
-    SAY_PREFIGHT_3                                = -1601019
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_DEATH                                     = 2,
+    SAY_SWARM                                     = 3,
+    SAY_PREFIGHT                                  = 4,
+    SAY_SEND_GROUP                                = 5
 };
 
 const Position SpawnPoint[] =
@@ -117,7 +110,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             Summon();
             uiSummonTimer = 15*IN_MILLISECONDS;
 
@@ -145,7 +138,7 @@ public:
                 me->SummonCreature(MOB_SKITTERING_SWARMER, SpawnPoint[7], TEMPSUMMON_TIMED_DESPAWN, 25*IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -180,7 +173,7 @@ public:
         }
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
@@ -191,7 +184,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summoned)
@@ -246,7 +239,7 @@ public:
             uiBackstabTimer = 7*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -297,7 +290,7 @@ public:
             uiShadowNovaTimer = 15*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -343,7 +336,7 @@ public:
             uiStrikeTimer = 6*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -393,7 +386,7 @@ public:
             DoCast(me, SPELL_ENRAGE, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -441,7 +434,7 @@ public:
             uiBindingWebsTimer = 17*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -495,7 +488,7 @@ public:
             uiPoisonSprayTimer  = 15*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

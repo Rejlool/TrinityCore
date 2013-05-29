@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,25 +25,22 @@
 #include "GridNotifiersImpl.h"
 #include "ulduar.h"
 
-/* #TODO: Achievements
+/* @todo Achievements
           Storm Cloud (Shaman ability)
           Destroying of Toasty Fires
 */
 
 enum HodirYells
 {
-    SAY_AGGRO                                    = -1603210,
-    SAY_SLAY_1                                   = -1603211,
-    SAY_SLAY_2                                   = -1603212,
-    SAY_FLASH_FREEZE                             = -1603213,
-    SAY_STALACTITE                               = -1603214,
-    SAY_DEATH                                    = -1603215,
-    SAY_BERSERK                                  = -1603216,
-    SAY_YS_HELP                                  = -1603217,
-    SAY_HARD_MODE_FAILED                         = -1603218,
-
-    EMOTE_FREEZE                                 = -1603209,
-    EMOTE_BLOWS                                  = -1603219,
+    SAY_AGGRO                                    = 0,
+    SAY_SLAY                                     = 1,
+    SAY_FLASH_FREEZE                             = 2,
+    SAY_STALACTITE                               = 3,
+    SAY_DEATH                                    = 4,
+    SAY_BERSERK                                  = 5,
+    SAY_HARD_MODE_FAILED                         = 6,
+    EMOTE_FREEZE                                 = 7,
+    EMOTE_BLOWS                                  = 8
 };
 
 enum HodirSpells
@@ -69,6 +66,8 @@ enum HodirSpells
     SPELL_BERSERK                                = 47008,
     SPELL_ICE_SHARD                              = 62457,
     SPELL_ICE_SHARD_HIT                          = 65370,
+
+    SPELL_KILL_CREDIT                            = 64899,
 
     // Druids
     SPELL_WRATH                                  = 62793,
@@ -194,7 +193,7 @@ class npc_flash_freeze : public CreatureScript
                 checkDespawnTimer = 1000;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->getVictim()->HasAura(SPELL_BLOCK_OF_ICE) || me->getVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
                     return;
@@ -329,7 +328,7 @@ class boss_hodir : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 DoCast(me, SPELL_BITING_COLD, true);
 
                 gettingColdInHereTimer = 1000;
@@ -346,10 +345,10 @@ class boss_hodir : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 480000);
             }
 
-            void KilledUnit(Unit* /*who*/)
+            void KilledUnit(Unit* who)
             {
-                if (!urand(0, 3))
-                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage)
@@ -357,7 +356,7 @@ class boss_hodir : public CreatureScript
                 if (damage >= me->GetHealth())
                 {
                     damage = 0;
-                    DoScriptText(SAY_DEATH, me);
+                    Talk(SAY_DEATH);
                     if (iCouldSayThatThisCacheWasRare)
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
 
@@ -376,11 +375,13 @@ class boss_hodir : public CreatureScript
                     me->setFaction(35);
                     me->DespawnOrUnsummon(10000);
 
+                    DoCastAOE(SPELL_KILL_CREDIT);
+
                     _JustDied();
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -404,8 +405,8 @@ class boss_hodir : public CreatureScript
                             events.ScheduleEvent(EVENT_ICICLE, RAID_MODE(5500, 3500));
                             break;
                         case EVENT_FLASH_FREEZE:
-                            DoScriptText(SAY_FLASH_FREEZE, me);
-                            DoScriptText(EMOTE_FREEZE, me);
+                            Talk(SAY_FLASH_FREEZE);
+                            Talk(EMOTE_FREEZE);
                             for (uint8 n = 0; n < RAID_MODE(2, 3); ++n)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                     target->CastSpell(target, SPELL_ICICLE_SNOWDRIFT, true);
@@ -424,19 +425,19 @@ class boss_hodir : public CreatureScript
                             break;
                         }
                         case EVENT_BLOWS:
-                            DoScriptText(SAY_STALACTITE, me);
-                            DoScriptText(EMOTE_BLOWS, me);
+                            Talk(SAY_STALACTITE);
+                            Talk(EMOTE_BLOWS);
                             DoCast(me, SPELL_FROZEN_BLOWS);
                             events.ScheduleEvent(EVENT_BLOWS, urand(60000, 65000));
                             break;
                         case EVENT_RARE_CACHE:
-                            DoScriptText(SAY_HARD_MODE_FAILED, me);
+                            Talk(SAY_HARD_MODE_FAILED);
                             iCouldSayThatThisCacheWasRare = false;
                             instance->SetData(DATA_HODIR_RARE_CACHE, 0);
                             events.CancelEvent(EVENT_RARE_CACHE);
                             break;
                         case EVENT_BERSERK:
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             DoCast(me, SPELL_BERSERK, true);
                             events.CancelEvent(EVENT_BERSERK);
                             break;
@@ -459,7 +460,7 @@ class boss_hodir : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -524,7 +525,7 @@ class npc_icicle : public CreatureScript
                 icicleTimer = 2500;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (icicleTimer <= diff)
                 {
@@ -572,7 +573,7 @@ class npc_snowpacked_icicle : public CreatureScript
                 despawnTimer = 12000;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (despawnTimer <= diff)
                 {
@@ -610,7 +611,7 @@ class npc_hodir_priest : public CreatureScript
                 events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15000, 20000));
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
                     return;
@@ -686,7 +687,7 @@ class npc_hodir_shaman : public CreatureScript
                 events.ScheduleEvent(EVENT_STORM_CLOUD, urand(10000, 12500));
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
                     return;
@@ -748,7 +749,7 @@ class npc_hodir_druid : public CreatureScript
                 events.ScheduleEvent(EVENT_STARLIGHT, urand(15000, 17500));
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
                     return;
@@ -820,10 +821,10 @@ class npc_hodir_mage : public CreatureScript
             void SummonedCreatureDespawn(Creature* summoned)
             {
                 if (summoned->GetEntry() == NPC_TOASTY_FIRE)
-                    summons.remove(summoned->GetGUID());
+                    summons.Despawn(summoned);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
                     return;

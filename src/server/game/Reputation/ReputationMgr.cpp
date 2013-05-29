@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,7 +46,7 @@ bool ReputationMgr::IsAtWar(uint32 faction_id) const
 
     if (!factionEntry)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "ReputationMgr::IsAtWar: Can't get AtWar flag of %s for unknown faction (faction id) #%u.", _player->GetName().c_str(), faction_id);
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "ReputationMgr::IsAtWar: Can't get AtWar flag of %s for unknown faction (faction id) #%u.", _player->GetName().c_str(), faction_id);
         return 0;
     }
 
@@ -69,7 +69,7 @@ int32 ReputationMgr::GetReputation(uint32 faction_id) const
 
     if (!factionEntry)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "ReputationMgr::GetReputation: Can't get reputation of %s for unknown faction (faction id) #%u.", _player->GetName().c_str(), faction_id);
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "ReputationMgr::GetReputation: Can't get reputation of %s for unknown faction (faction id) #%u.", _player->GetName().c_str(), faction_id);
         return 0;
     }
 
@@ -198,23 +198,24 @@ void ReputationMgr::SendState(FactionState const* faction)
 
 void ReputationMgr::SendInitialReputations()
 {
-    WorldPacket data(SMSG_INITIALIZE_FACTIONS, (4+128*5));
-    data << uint32 (0x00000080);
+    uint8 count = 128;
+    WorldPacket data(SMSG_INITIALIZE_FACTIONS, 4 + count * 5);
+    data << uint32(count);
 
     RepListID a = 0;
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
         // fill in absent fields
-        for (; a != itr->first; a++)
+        for (; a != itr->first; ++a)
         {
-            data << uint8  (0x00);
-            data << uint32 (0x00000000);
+            data << uint8(0);
+            data << uint32(0);
         }
 
         // fill in encountered data
-        data << uint8  (itr->second.Flags);
-        data << uint32 (itr->second.Standing);
+        data << uint8(itr->second.Flags);
+        data << uint32(itr->second.Standing);
 
         itr->second.needSend = false;
 
@@ -222,10 +223,10 @@ void ReputationMgr::SendInitialReputations()
     }
 
     // fill in absent fields
-    for (; a != 128; a++)
+    for (; a != count; ++a)
     {
-        data << uint8  (0x00);
-        data << uint32 (0x00000000);
+        data << uint8(0);
+        data << uint32(0);
     }
 
     _player->SendDirectMessage(&data);

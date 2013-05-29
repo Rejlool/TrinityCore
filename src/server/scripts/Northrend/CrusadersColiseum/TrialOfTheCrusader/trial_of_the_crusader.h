@@ -136,8 +136,8 @@ const Position AnubarakLoc[]=
 const Position EndSpawnLoc[]=
 {
     {648.9167f, 131.0208f, 141.6161f, 0}, // 0 - Highlord Tirion Fordring
-    {649.1614f, 142.0399f, 141.3057f ,0}, // 1 - Argent Mage
-    {644.6250f, 149.2743f, 140.6015f ,0}  // 2 - Portal to Dalaran
+    {649.1614f, 142.0399f, 141.3057f, 0}, // 1 - Argent Mage
+    {644.6250f, 149.2743f, 140.6015f, 0}  // 2 - Portal to Dalaran
 };
 
 enum euiWorldStates
@@ -243,15 +243,15 @@ enum eGameObject
 
     // Tribute Chest (heroic)
     // 10-man modes
-    GO_TRIBUTE_CHEST_10H_25     = 195668, // 10man 01-24 attempts
-    GO_TRIBUTE_CHEST_10H_45     = 195667, // 10man 25-44 attempts
-    GO_TRIBUTE_CHEST_10H_50     = 195666, // 10man 45-49 attempts
-    GO_TRIBUTE_CHEST_10H_99     = 195665, // 10man 50 attempts
+    GO_TRIBUTE_CHEST_10H_25     = 195665, // 10man 01-24 attempts
+    GO_TRIBUTE_CHEST_10H_45     = 195666, // 10man 25-44 attempts
+    GO_TRIBUTE_CHEST_10H_50     = 195667, // 10man 45-49 attempts
+    GO_TRIBUTE_CHEST_10H_99     = 195668, // 10man 50 attempts
     // 25-man modes
-    GO_TRIBUTE_CHEST_25H_25     = 195672, // 25man 01-24 attempts
-    GO_TRIBUTE_CHEST_25H_45     = 195671, // 25man 25-44 attempts
-    GO_TRIBUTE_CHEST_25H_50     = 195670, // 25man 45-49 attempts
-    GO_TRIBUTE_CHEST_25H_99     = 195669, // 25man 50 attempts
+    GO_TRIBUTE_CHEST_25H_25     = 195669, // 25man 01-24 attempts
+    GO_TRIBUTE_CHEST_25H_45     = 195670, // 25man 25-44 attempts
+    GO_TRIBUTE_CHEST_25H_50     = 195671, // 25man 45-49 attempts
+    GO_TRIBUTE_CHEST_25H_99     = 195672, // 25man 50 attempts
 
     GO_ARGENT_COLISEUM_FLOOR    = 195527, //20943
     GO_MAIN_GATE_DOOR           = 195647,

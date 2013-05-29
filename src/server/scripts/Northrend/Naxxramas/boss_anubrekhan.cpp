@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,11 +19,14 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-#define SAY_GREET           RAND(-1533000, -1533004, -1533005, -1533006, -1533007)
-#define SAY_AGGRO           RAND(-1533001, -1533002, -1533003)
-#define SAY_SLAY            -1533008
+enum Anubrekhan
+{
+    SAY_AGGRO           = 0,
+    SAY_GREET           = 1,
+    SAY_SLAY            = 2,
 
-#define MOB_CRYPT_GUARD     16573
+    MOB_CRYPT_GUARD     = 16573
+};
 
 const Position GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
 
@@ -92,12 +95,12 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            //Force the player to spawn corpse scarabs via spell, TODO: Check percent chance for scarabs, 20% at the moment
+            /// Force the player to spawn corpse scarabs via spell, @todo Check percent chance for scarabs, 20% at the moment
             if (!(rand()%5))
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, NULL, NULL, me->GetGUID());
 
-            DoScriptText(SAY_SLAY, me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -111,7 +114,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
             events.ScheduleEvent(EVENT_LOCUST, 90000);
             events.ScheduleEvent(EVENT_BERSERK, 600000);
@@ -124,7 +127,7 @@ public:
         {
             if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TYPEID_PLAYER)
             {
-                DoScriptText(SAY_GREET, me);
+                Talk(SAY_GREET);
                 hasTaunted = true;
             }
             ScriptedAI::MoveInLineOfSight(who);
@@ -141,7 +144,7 @@ public:
             summon->CastSpell(summon, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, NULL, NULL, me->GetGUID());
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;
@@ -161,13 +164,13 @@ public:
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
                         break;
                     case EVENT_LOCUST:
-                        // TODO : Add Text
+                        /// @todo Add Text
                         DoCast(me, RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25));
                         DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
                         events.ScheduleEvent(EVENT_LOCUST, 90000);
                         break;
                     case EVENT_SPAWN_GUARDIAN_NORMAL:
-                        // TODO : Add Text
+                        /// @todo Add Text
                         DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
                         break;
                     case EVENT_BERSERK:

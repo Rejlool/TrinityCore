@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
+#include "PathGenerator.h"
 
 class Unit;
 class Player;
@@ -333,7 +334,7 @@ class Spell
         void EffectPlayMusic(SpellEffIndex effIndex);
         void EffectSpecCount(SpellEffIndex effIndex);
         void EffectActivateSpec(SpellEffIndex effIndex);
-        void EffectPlayerNotification(SpellEffIndex effIndex);
+        void EffectPlaySound(SpellEffIndex effIndex);
         void EffectRemoveAura(SpellEffIndex effIndex);
         void EffectCastButtons(SpellEffIndex effIndex);
         void EffectRechargeManaGem(SpellEffIndex effIndex);
@@ -384,6 +385,8 @@ class Spell
         SpellCastResult CheckCast(bool strict);
         SpellCastResult CheckPetCast(Unit* target);
 
+        static uint32 GetCCDelay(SpellInfo const* _spell);
+
         // handlers
         void handle_immediate();
         uint64 handle_delayed(uint64 t_offset);
@@ -423,7 +426,7 @@ class Spell
         void ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 powerTaken, float gainMultiplier);
         void ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 attCount);
         void ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId);
-        void ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, uint32 itemslot, uint32 damage);
+        void ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, int32 itemId, int32 slot);
         void ExecuteLogEffectOpenLock(uint8 effIndex, Object* obj);
         void ExecuteLogEffectCreateItem(uint8 effIndex, uint32 entry);
         void ExecuteLogEffectDestroyItem(uint8 effIndex, uint32 entry);
@@ -455,7 +458,7 @@ class Spell
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
         bool IsNextMeleeSwingSpell() const;
-        bool IsTriggered() const { return _triggeredCastFlags & TRIGGERED_FULL_MASK; };
+        bool IsTriggered() const { return _triggeredCastFlags & TRIGGERED_FULL_MASK; }
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
         bool IsAutoActionResetSpell() const;
 
@@ -481,6 +484,8 @@ class Spell
         void CleanupTargetList();
 
         void SetSpellValue(SpellValueMod mod, int32 value);
+
+        void SetMagnetingAura(Aura* aura) { m_magnetingAura = aura; }
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
@@ -490,7 +495,7 @@ class Spell
 
         Unit* const m_caster;
 
-        SpellValue * const m_spellValue;
+        SpellValue* const m_spellValue;
 
         uint64 m_originalCasterGUID;                        // real source of cast (aura caster/etc), used for spell targets selection
                                                             // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
@@ -538,7 +543,8 @@ class Spell
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
         Aura* m_spellAura;
-
+        // pointer to magneting aura if spell is redirected
+        Aura* m_magnetingAura;
         // this is set in Spell Hit, but used in Apply Aura handler
         DiminishingLevels m_diminishLevel;
         DiminishingGroup m_diminishGroup;
@@ -549,6 +555,7 @@ class Spell
         // Damage and healing in effects need just calculate
         int32 m_damage;           // Damge   in effects count here
         int32 m_healing;          // Healing in effects count here
+        int32 m_true_damage;      // Needed by some spells
 
         // ******************************************
         // Spell trigger system
@@ -631,6 +638,7 @@ class Spell
         void CallScriptAfterHitHandlers();
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex);
+        bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
         std::list<SpellScript*> m_loadedScripts;
 
         struct HitTriggerSpell
@@ -665,6 +673,7 @@ class Spell
 
         bool m_skipCheck;
         uint8 m_auraScaleMask;
+        PathGenerator m_preGeneratedPath;
 
         ByteBuffer * m_effectExecuteData[MAX_SPELL_EFFECTS];
 

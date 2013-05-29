@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,36 +29,22 @@ EndScriptData */
 #include "Player.h"
 #include "SpellInfo.h"
 
-struct Yell
-{
-    int32 id;
-};
-
-static Yell RandomTaunt[]=
-{
-    {-1544000},
-    {-1544001},
-    {-1544002},
-    {-1544003},
-    {-1544004},
-    {-1544005},
-};
-
 enum eSays
 {
-    SAY_FREED                  = -1544006,
-    SAY_AGGRO                  = -1544007,
-    SAY_BANISH                 = -1544008,
-    SAY_CHAMBER_DESTROY        = -1544009,
-    SAY_PLAYER_KILLED          = -1544010,
-    SAY_DEATH                  = -1544011,
+    SAY_TAUNT                  = 0,
+    SAY_FREED                  = 1,
+    SAY_AGGRO                  = 2,
+    SAY_BANISH                 = 3,
+    SAY_CHAMBER_DESTROY        = 4,
+    SAY_PLAYER_KILLED          = 5,
+    SAY_DEATH                  = 6
 };
 
 enum eEmotes
 {
-    EMOTE_BERSERK              = -1544012,
-    EMOTE_BLASTNOVA            = -1544013,
-    EMOTE_BEGIN                = -1544014,
+    EMOTE_BERSERK              = 7,
+    EMOTE_BLASTNOVA            = 8,
+    EMOTE_BEGIN                = 9
 };
 
 enum eCreatures
@@ -165,7 +151,7 @@ class mob_abyssal : public CreatureScript
                     ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (trigger)
                 {
@@ -309,7 +295,7 @@ class boss_magtheridon : public CreatureScript
                 // if 5 clickers from other cubes apply shadow cage
                 if (ClickerNum >= CLICKERS_COUNT && !me->HasAura(SPELL_SHADOW_CAGE))
                 {
-                    DoScriptText(SAY_BANISH, me);
+                    Talk(SAY_BANISH);
                     DoCast(me, SPELL_SHADOW_CAGE, true);
                 }
                 else
@@ -322,7 +308,7 @@ class boss_magtheridon : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(SAY_PLAYER_KILLED, me);
+                Talk(SAY_PLAYER_KILLED);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -330,7 +316,7 @@ class boss_magtheridon : public CreatureScript
                 if (instance)
                     instance->SetData(DATA_MAGTHERIDON_EVENT, DONE);
 
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
             }
 
             void MoveInLineOfSight(Unit* /*who*/) {}
@@ -350,16 +336,16 @@ class boss_magtheridon : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE_C);
 
-                DoScriptText(SAY_FREED, me);
+                Talk(SAY_FREED);
            }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!me->isInCombat())
                 {
                     if (RandChat_Timer <= diff)
                     {
-                        DoScriptText(RandomTaunt[rand()%6].id, me);
+                        Talk(SAY_TAUNT);
                         RandChat_Timer = 90000;
                     }
                     else
@@ -374,7 +360,7 @@ class boss_magtheridon : public CreatureScript
                 if (Berserk_Timer <= diff)
                 {
                     DoCast(me, SPELL_BERSERK, true);
-                    DoScriptText(EMOTE_BERSERK, me);
+                    Talk(EMOTE_BERSERK);
                     Berserk_Timer = 60000;
                 }
                 else
@@ -393,7 +379,7 @@ class boss_magtheridon : public CreatureScript
                     // to avoid earthquake interruption
                     if (!me->HasUnitState(UNIT_STATE_STUNNED))
                     {
-                        DoScriptText(EMOTE_BLASTNOVA, me);
+                        Talk(EMOTE_BLASTNOVA);
                         DoCast(me, SPELL_BLASTNOVA);
                         BlastNova_Timer = 60000;
                     }
@@ -437,7 +423,7 @@ class boss_magtheridon : public CreatureScript
                     && !me->HasUnitState(UNIT_STATE_STUNNED)) // shadow cage and earthquake
                 {
                     Phase3 = true;
-                    DoScriptText(SAY_CHAMBER_DESTROY, me);
+                    Talk(SAY_CHAMBER_DESTROY);
                     DoCast(me, SPELL_CAMERA_SHAKE, true);
                     DoCast(me, SPELL_DEBRIS_KNOCKDOWN, true);
 
@@ -542,7 +528,7 @@ class mob_hellfire_channeler : public CreatureScript
                     instance->SetData(DATA_CHANNELER_EVENT, DONE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

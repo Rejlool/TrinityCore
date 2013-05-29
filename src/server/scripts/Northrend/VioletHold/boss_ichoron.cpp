@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,15 +40,13 @@ enum IchoronCreatures
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1608018,
-    SAY_SLAY_1                                  = -1608019,
-    SAY_SLAY_2                                  = -1608020,
-    SAY_SLAY_3                                  = -1608021,
-    SAY_DEATH                                   = -1608022,
-    SAY_SPAWN                                   = -1608023,
-    SAY_ENRAGE                                  = -1608024,
-    SAY_SHATTER                                 = -1608025,
-    SAY_BUBBLE                                  = -1608026
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_ENRAGE                                  = 4,
+    SAY_SHATTER                                 = 5,
+    SAY_BUBBLE                                  = 6
 };
 
 enum Actions
@@ -57,7 +55,7 @@ enum Actions
     ACTION_WATER_ELEMENT_KILLED                 = 2,
 };
 
-// TODO get those positions from spawn of creature 29326
+/// @todo get those positions from spawn of creature 29326
 #define MAX_SPAWN_LOC 5
 static Position SpawnLoc[MAX_SPAWN_LOC]=
 {
@@ -120,7 +118,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             DoCast(me, SPELL_PROTECTIVE_BUBBLE);
 
@@ -153,7 +151,7 @@ public:
             }
         }
 
-        void DoAction(const int32 param)
+        void DoAction(int32 param)
         {
             if (!me->isAlive())
                 return;
@@ -189,7 +187,7 @@ public:
 
             if (!HealthBelowPct(25))
             {
-                DoScriptText(SAY_BUBBLE, me);
+                Talk(SAY_BUBBLE);
                 DoCast(me, SPELL_PROTECTIVE_BUBBLE, true);
             }
 
@@ -207,14 +205,14 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
 
             if (!bIsFrenzy && HealthBelowPct(25) && !bIsExploded)
             {
-                DoScriptText(SAY_ENRAGE, me);
+                Talk(SAY_ENRAGE);
                 DoCast(me, SPELL_FRENZY, true);
                 bIsFrenzy = true;
             }
@@ -227,7 +225,7 @@ public:
                     {
                         if (!me->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
                         {
-                            DoScriptText(SAY_SHATTER, me);
+                            Talk(SAY_SHATTER);
                             DoCast(me, SPELL_WATER_BLAST);
                             DoCast(me, SPELL_DRAINED);
                             bIsExploded = true;
@@ -277,7 +275,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (bIsExploded)
             {
@@ -308,7 +306,7 @@ public:
             {
                 summoned->SetSpeed(MOVE_RUN, 0.3f);
                 summoned->GetMotionMaster()->MoveFollow(me, 0, 0);
-                m_waterElements.push_back(summoned->GetGUID());
+                m_waterElements.Summon(summoned);
                 instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
             }
         }
@@ -317,7 +315,7 @@ public:
         {
             if (summoned)
             {
-                m_waterElements.remove(summoned->GetGUID());
+                m_waterElements.Despawn(summoned);
                 instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
             }
         }
@@ -326,7 +324,7 @@ public:
         {
             if (victim == me)
                 return;
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
     };
 
@@ -364,7 +362,7 @@ public:
             return;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (uiRangeCheck_Timer < uiDiff)
             {

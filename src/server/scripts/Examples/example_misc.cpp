@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,11 +26,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Player.h"
 
-enum eSay
-{
-    SAY_HI  = -1999925
-};
-
 class AT_example_areatrigger : public AreaTriggerScript
 {
     public:
@@ -42,7 +37,7 @@ class AT_example_areatrigger : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
-            DoScriptText(SAY_HI, player);
+            player->Kill(player);
             return true;
         }
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,19 @@ void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
 
+//TeleNPC2
+void AddSC_npc_teleport();
+//Hunter Pet Vendor
+void AddSC_npc_hunterpetvendor();
+// Custom
+void AddSC_DuelReset();
+//NPC Transport Service
+void AddSC_npc_mount();	
+// Argent Tournament quest scripts
+void AddSC_ArgentTournament();
+//Revenge od Dalaran squidrrel
+void AddSC_dalaran_squirrel();
+
 // spells
 void AddSC_deathknight_spell_scripts();
 void AddSC_druid_spell_scripts();
@@ -46,12 +59,14 @@ void AddSC_SmartSCripts();
 //Commands
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
+void AddSC_arena_commandscript();
 void AddSC_ban_commandscript();
 void AddSC_bf_commandscript();
 void AddSC_cast_commandscript();
 void AddSC_character_commandscript();
 void AddSC_cheat_commandscript();
 void AddSC_debug_commandscript();
+void AddSC_deserter_commandscript();
 void AddSC_disable_commandscript();
 void AddSC_event_commandscript();
 void AddSC_gm_commandscript();
@@ -66,9 +81,11 @@ void AddSC_list_commandscript();
 void AddSC_lookup_commandscript();
 void AddSC_message_commandscript();
 void AddSC_misc_commandscript();
+void AddSC_mmaps_commandscript();
 void AddSC_modify_commandscript();
 void AddSC_npc_commandscript();
 void AddSC_quest_commandscript();
+void AddSC_rbac_commandscript();
 void AddSC_reload_commandscript();
 void AddSC_reset_commandscript();
 void AddSC_server_commandscript();
@@ -90,7 +107,6 @@ void AddSC_npc_innkeeper();
 void AddSC_npcs_special();
 void AddSC_npc_taxi();
 void AddSC_achievement_scripts();
-void AddSC_event_scripts();
 
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
@@ -110,6 +126,7 @@ void AddSC_boss_magmus();
 void AddSC_boss_moira_bronzebeard();
 void AddSC_boss_tomb_of_seven();
 void AddSC_instance_blackrock_depths();
+void AddSC_boss_coren_direbrew();
 void AddSC_boss_drakkisath();                //Blackrock Spire
 void AddSC_boss_halycon();
 void AddSC_boss_highlordomokk();
@@ -136,6 +153,7 @@ void AddSC_boss_mr_smite();
 void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
 void AddSC_gnomeregan();                     //Gnomeregan
+void AddSC_operation_gnomeregan();           //Operation Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_boss_attumen();                   //Karazhan
 void AddSC_boss_curator();
@@ -193,6 +211,7 @@ void AddSC_boss_lorekeeperpolkelt();
 void AddSC_boss_rasfrost();
 void AddSC_boss_theravenian();
 void AddSC_boss_vectus();
+void AddSC_boss_kirtonos_the_herald();
 void AddSC_instance_scholomance();
 void AddSC_shadowfang_keep();                //Shadowfang keep
 void AddSC_instance_shadowfang_keep();
@@ -321,6 +340,7 @@ void AddSC_boss_ayamiss();
 void AddSC_boss_ossirian();
 void AddSC_instance_ruins_of_ahnqiraj();
 void AddSC_boss_cthun();                     //Temple of ahn'qiraj
+void AddSC_boss_viscidus();
 void AddSC_boss_fankriss();
 void AddSC_boss_huhuran();
 void AddSC_bug_trio();
@@ -441,6 +461,7 @@ void AddSC_ulduar_teleporter();
 void AddSC_boss_mimiron();
 void AddSC_boss_hodir();
 void AddSC_boss_freya();
+void AddSC_boss_yogg_saron();
 void AddSC_boss_algalon_the_observer();
 void AddSC_instance_ulduar();
 void AddSC_boss_keleseth();              //Utgarde Keep
@@ -579,6 +600,9 @@ void AddSC_instance_arcatraz();
 void AddSC_boss_high_botanist_freywinn();    //TK Botanica
 void AddSC_boss_laj();
 void AddSC_boss_warp_splinter();
+void AddSC_boss_thorngrin_the_tender();
+void AddSC_boss_commander_sarannis();
+void AddSC_instance_the_botanica();
 void AddSC_boss_alar();                      //TK The Eye
 void AddSC_boss_kaelthas();
 void AddSC_boss_void_reaver();
@@ -586,6 +610,7 @@ void AddSC_boss_high_astromancer_solarian();
 void AddSC_instance_the_eye();
 void AddSC_the_eye();
 void AddSC_boss_gatewatcher_iron_hand();     //TK The Mechanar
+void AddSC_boss_gatewatcher_gyrokill();
 void AddSC_boss_nethermancer_sepethrea();
 void AddSC_boss_pathaleon_the_calculator();
 void AddSC_boss_mechano_lord_capacitus();
@@ -602,6 +627,9 @@ void AddSC_shattrath_city();
 void AddSC_terokkar_forest();
 void AddSC_zangarmarsh();
 
+// Events
+void AddSC_event_childrens_week();
+
 // battlegrounds
 
 // outdoor pvp
@@ -611,6 +639,7 @@ void AddSC_outdoorpvp_na();
 void AddSC_outdoorpvp_si();
 void AddSC_outdoorpvp_tf();
 void AddSC_outdoorpvp_zm();
+void AddSC_outdoorpvp_gh();
 
 // player
 void AddSC_chat_log();
@@ -629,6 +658,7 @@ void AddScripts()
     AddKalimdorScripts();
     AddOutlandScripts();
     AddNorthrendScripts();
+    AddEventScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
@@ -667,12 +697,14 @@ void AddCommandScripts()
 {
     AddSC_account_commandscript();
     AddSC_achievement_commandscript();
+    AddSC_arena_commandscript();
     AddSC_ban_commandscript();
     AddSC_bf_commandscript();
     AddSC_cast_commandscript();
     AddSC_character_commandscript();
     AddSC_cheat_commandscript();
     AddSC_debug_commandscript();
+    AddSC_deserter_commandscript();
     AddSC_disable_commandscript();
     AddSC_event_commandscript();
     AddSC_gm_commandscript();
@@ -687,9 +719,11 @@ void AddCommandScripts()
     AddSC_list_commandscript();
     AddSC_message_commandscript();
     AddSC_misc_commandscript();
+    AddSC_mmaps_commandscript();
     AddSC_modify_commandscript();
     AddSC_npc_commandscript();
     AddSC_quest_commandscript();
+    AddSC_rbac_commandscript();
     AddSC_reload_commandscript();
     AddSC_reset_commandscript();
     AddSC_server_commandscript();
@@ -714,7 +748,6 @@ void AddWorldScripts()
     AddSC_npc_taxi();
     AddSC_achievement_scripts();
     AddSC_chat_log();
-    AddSC_event_scripts();
 #endif
 }
 
@@ -738,6 +771,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_moira_bronzebeard();
     AddSC_boss_tomb_of_seven();
     AddSC_instance_blackrock_depths();
+    AddSC_boss_coren_direbrew();
     AddSC_boss_drakkisath();                //Blackrock Spire
     AddSC_boss_halycon();
     AddSC_boss_highlordomokk();
@@ -764,6 +798,7 @@ void AddEasternKingdomsScripts()
     AddSC_deadmines();                      //Deadmines
     AddSC_instance_deadmines();
     AddSC_gnomeregan();                     //Gnomeregan
+    AddSC_operation_gnomeregan();           //Operation Gnomeregan
     AddSC_instance_gnomeregan();
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();
@@ -821,6 +856,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_rasfrost();
     AddSC_boss_theravenian();
     AddSC_boss_vectus();
+    AddSC_boss_kirtonos_the_herald();
     AddSC_instance_scholomance();
     AddSC_shadowfang_keep();                //Shadowfang keep
     AddSC_instance_shadowfang_keep();
@@ -953,6 +989,7 @@ void AddKalimdorScripts()
     AddSC_boss_ossirian();
     AddSC_instance_ruins_of_ahnqiraj();
     AddSC_boss_cthun();                     //Temple of ahn'qiraj
+    AddSC_boss_viscidus();
     AddSC_boss_fankriss();
     AddSC_boss_huhuran();
     AddSC_bug_trio();
@@ -1055,6 +1092,9 @@ void AddOutlandScripts()
     AddSC_boss_high_botanist_freywinn();    //TK Botanica
     AddSC_boss_laj();
     AddSC_boss_warp_splinter();
+    AddSC_boss_thorngrin_the_tender();
+    AddSC_boss_commander_sarannis();
+    AddSC_instance_the_botanica();
     AddSC_boss_alar();                      //TK The Eye
     AddSC_boss_kaelthas();
     AddSC_boss_void_reaver();
@@ -1062,6 +1102,7 @@ void AddOutlandScripts()
     AddSC_instance_the_eye();
     AddSC_the_eye();
     AddSC_boss_gatewatcher_iron_hand();     //TK The Mechanar
+    AddSC_boss_gatewatcher_gyrokill();
     AddSC_boss_nethermancer_sepethrea();
     AddSC_boss_pathaleon_the_calculator();
     AddSC_boss_mechano_lord_capacitus();
@@ -1164,6 +1205,7 @@ void AddNorthrendScripts()
     AddSC_boss_mimiron();
     AddSC_boss_hodir();
     AddSC_boss_freya();
+    AddSC_boss_yogg_saron();
     AddSC_boss_algalon_the_observer();
     AddSC_instance_ulduar();
     AddSC_boss_keleseth();              //Utgarde Keep
@@ -1244,6 +1286,13 @@ void AddNorthrendScripts()
 #endif
 }
 
+void AddEventScripts()
+{
+#ifdef SCRIPTS
+    AddSC_event_childrens_week();
+#endif
+}
+
 void AddOutdoorPvPScripts()
 {
 #ifdef SCRIPTS
@@ -1253,6 +1302,7 @@ void AddOutdoorPvPScripts()
     AddSC_outdoorpvp_si();
     AddSC_outdoorpvp_tf();
     AddSC_outdoorpvp_zm();
+    AddSC_outdoorpvp_gh();
 #endif
 }
 
@@ -1271,6 +1321,14 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-
+    //TeleNPC2
+    AddSC_npc_teleport();
+    //Hunter Pet Vendor
+    AddSC_npc_hunterpetvendor();	
+    // Custom
+    AddSC_DuelReset();
+    AddSC_npc_mount();		
+    AddSC_ArgentTournament();
+    AddSC_dalaran_squirrel();
 #endif
 }

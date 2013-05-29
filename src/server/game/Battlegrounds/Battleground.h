@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -108,7 +108,7 @@ enum BattlegroundTimeIntervals
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
-    INVITE_ACCEPT_WAIT_TIME         = 40000,                // ms
+    INVITE_ACCEPT_WAIT_TIME         = 60000,                // ms
     TIME_TO_AUTOREMOVE              = 120000,               // ms
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
@@ -193,7 +193,11 @@ enum ScoreType
     SCORE_SECONDARY_OBJECTIVES  = 17,
     //SOTA
     SCORE_DESTROYED_DEMOLISHER  = 18,
-    SCORE_DESTROYED_WALL        = 19
+    SCORE_DESTROYED_WALL        = 19,
+    /** World of Warcraft Armory **/
+    SCORE_DAMAGE_TAKEN          = 20,
+    SCORE_HEALING_TAKEN         = 21
+    /** World of Warcraft Armory **/
 };
 
 enum ArenaType
@@ -250,6 +254,10 @@ struct BattlegroundScore
     uint32 BonusHonor;
     uint32 DamageDone;
     uint32 HealingDone;
+        /** World of Warcraft Armory **/
+        uint32 DamageTaken;
+        uint32 HealingTaken;
+        /** World of Warcraft Armory **/
 };
 
 enum BGHonorMode
@@ -494,7 +502,7 @@ class Battleground
         void HandleTriggerBuff(uint64 go_guid);
         void SetHoliday(bool is_holiday);
 
-        // TODO: make this protected:
+        /// @todo make this protected:
         typedef std::vector<uint64> BGObjects;
         typedef std::vector<uint64> BGCreatures;
         BGObjects BgObjects;
@@ -528,7 +536,7 @@ class Battleground
         virtual uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const { return 0; }
         virtual void SetDroppedFlagGUID(uint64 /*guid*/, int32 /*team*/ = -1) {}
         uint32 GetTeamScore(uint32 TeamID) const;
-        
+
         virtual uint32 GetPrematureWinner();
 
     protected:

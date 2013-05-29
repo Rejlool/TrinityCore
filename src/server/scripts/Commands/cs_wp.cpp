@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,6 +45,7 @@ public:
             { "unload",         SEC_GAMEMASTER,     false, &HandleWpUnLoadCommand,             "", NULL },
             { "reload",         SEC_ADMINISTRATOR,  false, &HandleWpReloadCommand,             "", NULL },
             { "show",           SEC_GAMEMASTER,     false, &HandleWpShowCommand,               "", NULL },
+            { "get",            SEC_GAMEMASTER,     false, &HandleWpGetCommand,                "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -700,7 +701,7 @@ public:
 
                     wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
                     // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-                    //TODO: Should we first use "Create" then use "LoadFromDB"?
+                    /// @todo Should we first use "Create" then use "LoadFromDB"?
                     if (!wpCreature2->LoadCreatureFromDB(wpCreature2->GetDBTableGUIDLow(), map))
                     {
                         handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
@@ -796,7 +797,7 @@ public:
         if (show == "info")
         {
             // Check if the user did specify a visual waypoint
-            if (target->GetEntry() != VISUAL_WAYPOINT)
+            if (target && target->GetEntry() != VISUAL_WAYPOINT)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_SELECT);
                 handler->SetSentErrorMessage(true);
@@ -1107,6 +1108,20 @@ public:
 
         handler->PSendSysMessage("|cffff33ffDEBUG: wpshow - no valid command found|r");
         return true;
+    }
+
+    static bool HandleWpGetCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float x,y,z;
+
+        Player* Pl = handler->GetSession()->GetPlayer();
+        Pl->GetPosition(x,y,z);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "AddWaypoint(, %ff, %ff, %ff);",x,y,z);
+        Pl->SummonGameObject(188650, x, y, z,0,0,0,0,0,0);
+        return false;
     }
 };
 

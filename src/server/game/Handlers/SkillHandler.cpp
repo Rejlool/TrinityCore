@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,7 +27,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleLearnTalentOpcode(WorldPacket & recvData)
+void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 {
     uint32 talent_id, requested_rank;
     recvData >> talent_id >> requested_rank;
@@ -38,7 +38,7 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket & recvData)
 
 void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LEARN_PREVIEW_TALENTS");
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "CMSG_LEARN_PREVIEW_TALENTS");
 
     uint32 talentsCount;
     recvPacket >> talentsCount;
@@ -55,16 +55,16 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     _player->SendTalentsInfoData(false);
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recvData)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_TALENT_WIPE_CONFIRM");
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "MSG_TALENT_WIPE_CONFIRM");
     uint64 guid;
     recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTalentWipeConfirmOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: HandleTalentWipeConfirmOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
         return;
     }
 

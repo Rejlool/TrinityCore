@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,10 +31,11 @@ enum OutdoorPvPTypes
     OUTDOOR_PVP_TF = 3,
     OUTDOOR_PVP_ZM = 4,
     OUTDOOR_PVP_SI = 5,
-    OUTDOOR_PVP_EP = 6
+    OUTDOOR_PVP_EP = 6,
+    OUTDOOR_PVP_GH = 7
 };
 
-#define MAX_OUTDOORPVP_TYPES 7
+#define MAX_OUTDOORPVP_TYPES 8
 
 enum ObjectiveStates
 {
@@ -285,7 +286,7 @@ class OutdoorPvP : public ZoneScript
 
         void RegisterZone(uint32 zoneid);
 
-        bool HasPlayer(Player const * player) const;
+        bool HasPlayer(Player const* player) const;
 
         void TeamCastSpell(TeamId team, int32 spellId);
 };

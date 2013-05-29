@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,7 @@
  */
 
 /*
-    TODO:
+    @todo
         Fix void zone damage
         If the boss is to close to a scrap pile -> no summon  -- Needs retail confirmation
         make the life sparks visible...     /? Need test
@@ -157,15 +157,18 @@ enum XT002Data
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603300,
-    SAY_HEART_OPENED                            = -1603301,
-    SAY_HEART_CLOSED                            = -1603302,
-    SAY_TYMPANIC_TANTRUM                        = -1603303,
-    SAY_SLAY_1                                  = -1603304,
-    SAY_SLAY_2                                  = -1603305,
-    SAY_BERSERK                                 = -1603306,
-    SAY_DEATH                                   = -1603307,
-    SAY_SUMMON                                  = -1603308,
+    SAY_AGGRO                                   = 0,
+    SAY_HEART_OPENED                            = 1,
+    SAY_HEART_CLOSED                            = 2,
+    SAY_TYMPANIC_TANTRUM                        = 3,
+    SAY_SLAY                                    = 4,
+    SAY_BERSERK                                 = 5,
+    SAY_DEATH                                   = 6,
+    SAY_SUMMON                                  = 7,
+    EMOTE_HEART_OPENED                          = 8,
+    EMOTE_HEART_CLOSED                          = 9,
+    EMOTE_TYMPANIC_TANTRUM                      = 10,
+    EMOTE_SCRAPBOT                              = 11
 };
 
 enum AchievementCredits
@@ -223,7 +226,7 @@ class boss_xt002 : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 _EnterCombat();
 
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
@@ -238,7 +241,7 @@ class boss_xt002 : public CreatureScript
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -248,14 +251,15 @@ class boss_xt002 : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* who)
             {
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 _JustDied();
             }
 
@@ -265,7 +269,7 @@ class boss_xt002 : public CreatureScript
                     ExposeHeart();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -292,7 +296,8 @@ class boss_xt002 : public CreatureScript
                             events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                             break;
                         case EVENT_TYMPANIC_TANTRUM:
-                            DoScriptText(SAY_TYMPANIC_TANTRUM, me);
+                            Talk(SAY_TYMPANIC_TANTRUM);
+                            Talk(EMOTE_TYMPANIC_TANTRUM);
                             DoCast(SPELL_TYMPANIC_TANTRUM);
                             events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX));
                             break;
@@ -300,7 +305,7 @@ class boss_xt002 : public CreatureScript
                             SetPhaseOne();
                             break;
                         case EVENT_ENRAGE:
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             DoCast(me, SPELL_ENRAGE);
                             break;
                         case EVENT_ENTER_HARD_MODE:
@@ -325,6 +330,7 @@ class boss_xt002 : public CreatureScript
                     if (me->GetHealthPct() > (25 * (4 - _heartExposed)))
                         ++_heartExposed;
 
+                    Talk(EMOTE_SCRAPBOT);
                     _healthRecovered = true;
                 }
             }
@@ -359,7 +365,8 @@ class boss_xt002 : public CreatureScript
 
             void ExposeHeart()
             {
-                DoScriptText(SAY_HEART_OPENED, me);
+                Talk(SAY_HEART_OPENED);
+                Talk(EMOTE_HEART_OPENED);
 
                 DoCast(me, SPELL_SUBMERGE);  // WIll make creature untargetable
                 me->AttackStop();
@@ -391,7 +398,8 @@ class boss_xt002 : public CreatureScript
 
             void SetPhaseOne()
             {
-                DoScriptText(SAY_HEART_CLOSED, me);
+                Talk(SAY_HEART_CLOSED);
+                Talk(EMOTE_HEART_CLOSED);
 
                 DoCast(me, SPELL_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -443,14 +451,15 @@ class mob_xt002_heart : public CreatureScript
     public:
         mob_xt002_heart() : CreatureScript("mob_xt002_heart") { }
 
-        struct mob_xt002_heartAI : public Scripted_NoMovementAI
+        struct mob_xt002_heartAI : public ScriptedAI
         {
-            mob_xt002_heartAI(Creature* creature) : Scripted_NoMovementAI(creature),
+            mob_xt002_heartAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
+                SetCombatMovement(false);
             }
 
-            void UpdateAI(uint32 const /*diff*/) { }
+            void UpdateAI(uint32 /*diff*/) { }
 
             void JustDied(Unit* /*killer*/)
             {
@@ -504,7 +513,7 @@ class mob_scrapbot : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_rangeCheckTimer <= diff)
                 {
@@ -565,7 +574,7 @@ class mob_pummeller : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -665,7 +674,7 @@ class mob_boombot : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MINDAMAGE, 15000.0f);
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
-                // Todo: proper waypoints?
+                /// @todo proper waypoints?
                 if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
@@ -695,7 +704,7 @@ class mob_boombot : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -737,7 +746,7 @@ class mob_life_spark : public CreatureScript
                 _shockTimer = 0; // first one is immediate.
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -928,7 +937,8 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                         }
                     }
 
-                    DoScriptText(SAY_SUMMON, caster->GetVehicleBase());
+                    if (Creature* base = caster->GetVehicleCreatureBase())
+                        base->AI()->Talk(SAY_SUMMON);
                 }
             }
 

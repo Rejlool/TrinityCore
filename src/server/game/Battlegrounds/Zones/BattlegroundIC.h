@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -876,6 +876,7 @@ class BattlegroundIC : public Battleground
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);
 
         void EventPlayerDamagedGO(Player* /*player*/, GameObject* go, uint32 eventType);
+        void ActivateBoss(uint8 faction, bool visible = true);
         void DestroyGate(Player* player, GameObject* go);
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
